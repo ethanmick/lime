@@ -22,3 +22,4 @@ go.work
 
 # Testing credentials
 token.json
+credentials.json
