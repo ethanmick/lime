@@ -1,4 +1,4 @@
-module github.com/email
+module github.com/ethanmick/lime
 
 go 1.21.0
 

@@ -1,12 +1,18 @@
 package email
 
-import "google.golang.org/api/gmail/v1"
+import (
+	"net/mail"
+	"time"
+)
 
 type Headers map[string]string
 
 type Email struct {
 	// Id: The immutable ID of the message.
-	Id string `json:"id,omitempty"`
+	ID string `json:"id,omitempty"`
+
+	// Received: The time at which the message was received by the server
+	Received *time.Time `json:"received,omitempty"`
 
 	// Headers: List of headers on this email
 	Headers Headers `json:"headers,omitempty"`
@@ -15,7 +21,7 @@ type Email struct {
 	Subject string `json:"subject,omitempty"`
 
 	// From: List of addresses from the `From` header.
-	From []string `json:"from,omitempty"`
+	From string `json:"from,omitempty"`
 
 	// To: List of addresses from the `To` header.
 	To []string `json:"to,omitempty"`
@@ -37,26 +43,10 @@ type Email struct {
 	Snippet string `json:"snippet,omitempty"`
 }
 
-func FromGmail(mes *gmail.Message) *Email {
-	e := &Email{}
-	e.Id = mes.Id
-	e.Headers = make(Headers)
-	for _, h := range mes.Payload.Headers {
-		e.Headers[h.Name] = h.Value
+func (e *Email) FromEmail() string {
+	addr, err := mail.ParseAddress(e.From)
+	if err != nil {
+		return ""
 	}
-	e.Subject = e.Headers["Subject"]
-	e.To = []string{e.Headers["To"]}
-	e.From = []string{e.Headers["From"]}
-	e.CC = []string{e.Headers["CC"]}
-	e.BCC = []string{e.Headers["BCC"]}
-	var body string
-	for _, p := range mes.Payload.Parts {
-		if p.MimeType == "text/html" {
-			body = p.Body.Data
-		}
-	}
-	e.Body = body
-	e.Filename = mes.Payload.Filename
-	e.Snippet = mes.Snippet
-	return e
+	return addr.Address
 }
