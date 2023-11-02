@@ -15,6 +15,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
@@ -167,6 +168,9 @@ func login() {
 	}
 
 	email := data["email"].(string)
+	viper.Set("account", email)
+	viper.WriteConfig()
+
 	spew.Dump(email, data)
 
 	// client := conf.Client(context.Background(), tok)

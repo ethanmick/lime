@@ -35,7 +35,7 @@ func download() {
 	}
 
 	resp, err := client.GetEmails(ctx, &providers.GetEmailsRequest{
-		Limit: 10,
+		Limit: 20,
 	})
 	if err != nil {
 		log.Fatalf("unable to retrieve emails: %v", err)

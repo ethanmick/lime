@@ -9,7 +9,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/ethanmick/lime/email"
 	providers "github.com/ethanmick/lime/provider"
 	"golang.org/x/oauth2"
@@ -23,7 +22,6 @@ type GmailProvider struct {
 }
 
 func FromGmail(mes *gmail.Message) email.Email {
-	spew.Dump("Test", mes)
 	e := email.Email{}
 	e.ID = mes.Id
 	e.Headers = make(email.Headers)
@@ -36,8 +34,8 @@ func FromGmail(mes *gmail.Message) email.Email {
 	e.Subject = e.Headers["Subject"]
 	e.To = []string{e.Headers["To"]}
 	e.From = e.Headers["From"]
-	e.CC = []string{e.Headers["CC"]}
-	e.BCC = []string{e.Headers["BCC"]}
+	e.CC = []string{e.Headers["Cc"]}
+	e.BCC = []string{e.Headers["Bcc"]}
 	var body string
 	for _, p := range mes.Payload.Parts {
 		if p.MimeType == "text/html" {
@@ -65,12 +63,11 @@ func (g *GmailProvider) GetEmails(c context.Context, req *providers.GetEmailsReq
 			if err != nil {
 				return nil, fmt.Errorf("failed to get message: %w", err)
 			}
-			spew.Dump("Raw Email", msg)
 			response.Emails = append(response.Emails, FromGmail(msg))
 			time.Sleep(1 * time.Second)
 		}
 
-		if len(resp.Messages) == 0 || len(response.Emails) > req.Limit {
+		if len(resp.Messages) == 0 || len(response.Emails) >= req.Limit {
 			break
 		}
 

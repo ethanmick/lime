@@ -26,3 +26,6 @@ credentials.json
 
 # Database
 lime.db
+
+# Executable
+lime

@@ -1,8 +1,42 @@
 package main
 
-import "github.com/ethanmick/lime/cmd"
+import (
+	"log"
+	"os"
+	"path/filepath"
+
+	"github.com/ethanmick/lime/cmd"
+	"github.com/spf13/viper"
+)
 
 func main() {
+	viper.SetEnvPrefix("lime")
+	// viper.SetConfigName("config")
+	// viper.AddConfigPath("$HOME/.lime")
+	home, err := os.UserHomeDir()
+	if err != nil {
+		// Handle error
+		panic(err)
+	}
+
+	configPath := filepath.Join(home, ".lime", "config.yaml")
+	viper.SetConfigFile(configPath)
+
+	if err := viper.ReadInConfig(); err != nil {
+		log.Println("Config", viper.ConfigFileUsed())
+		dir := filepath.Dir(viper.ConfigFileUsed())
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			// Create the directory
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				panic(err)
+			}
+		}
+
+		if err := viper.WriteConfig(); err != nil {
+			panic(err)
+		}
+	}
+
 	cmd.Execute()
 }
 

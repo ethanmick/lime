@@ -4,6 +4,7 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -42,8 +43,11 @@ func parse(byt []byte) error {
 
 	fmt.Printf("%s: '%s'\n", e.FromEmail(), e.Subject)
 	fmt.Printf("==> Is Newsletter: %v\n", email.IsNewsletter(&e))
-	if e.FromEmail() == "irina@brizy.io" {
+	fmt.Printf("==> Is List: %v\n", email.IsList(&e))
+	if e.FromEmail() == "hello@phind.com" {
 		spew.Dump(e)
+		decoded, _ := base64.URLEncoding.DecodeString(e.Body)
+		spew.Dump(string(decoded[:]))
 	}
 	fmt.Println("")
 
