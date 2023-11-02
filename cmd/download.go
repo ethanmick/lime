@@ -12,6 +12,8 @@ import (
 	bolt "go.etcd.io/bbolt"
 )
 
+var limit int
+
 // downloadCmd represents the download command
 var downloadCmd = &cobra.Command{
 	Use:   "download",
@@ -34,9 +36,12 @@ func download() {
 		log.Fatalf("Unable to retrieve Gmail client: %v", err)
 	}
 
-	resp, err := client.GetEmails(ctx, &providers.GetEmailsRequest{
-		Limit: 20,
-	})
+	opts := &providers.GetEmailsRequest{}
+	if limit > 0 {
+		opts.Limit = limit
+	}
+
+	resp, err := client.GetEmails(ctx, opts)
 	if err != nil {
 		log.Fatalf("unable to retrieve emails: %v", err)
 	}
@@ -62,6 +67,7 @@ func download() {
 }
 
 func init() {
+	downloadCmd.Flags().IntVarP(&limit, "limit", "", -1, "Limit the number of messages downloaded")
 	rootCmd.AddCommand(downloadCmd)
 
 	// Here you will define your flags and configuration settings.

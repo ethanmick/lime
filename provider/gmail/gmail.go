@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
@@ -52,19 +53,25 @@ func (g *GmailProvider) GetEmails(c context.Context, req *providers.GetEmailsReq
 	user := "me"
 	pageToken := ""
 	response := &providers.GetEmailsResponse{}
+	count := 0
 	for {
-		resp, err := g.srv.Users.Messages.List(user).MaxResults(int64(req.Limit)).PageToken(pageToken).Do()
+		gmailReq := g.srv.Users.Messages.List(user).PageToken(pageToken)
+		if req.Limit > 0 {
+			gmailReq = gmailReq.MaxResults(int64(req.Limit))
+		}
+		resp, err := gmailReq.Do()
 		if err != nil {
 			return nil, fmt.Errorf("failed to list user messages: %w", err)
 		}
 		response.Total = resp.ResultSizeEstimate
 		for _, m := range resp.Messages {
+			slog.Info(fmt.Sprintf("Fetching message %d/%d", count, response.Total))
 			msg, err := g.srv.Users.Messages.Get("me", m.Id).Format("full").Do()
 			if err != nil {
 				return nil, fmt.Errorf("failed to get message: %w", err)
 			}
 			response.Emails = append(response.Emails, FromGmail(msg))
-			time.Sleep(1 * time.Second)
+			count++
 		}
 
 		if len(resp.Messages) == 0 || len(response.Emails) >= req.Limit {
