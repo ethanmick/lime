@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -10,7 +11,13 @@ import (
 )
 
 func main() {
+	var lvl = new(slog.LevelVar)
+	lvl.Set(slog.LevelDebug)
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: lvl}))
+	slog.SetDefault(logger)
+
 	viper.SetEnvPrefix("lime")
+	viper.BindEnv("openai_apikey")
 	// viper.SetConfigName("config")
 	// viper.AddConfigPath("$HOME/.lime")
 	home, err := os.UserHomeDir()
@@ -23,6 +30,7 @@ func main() {
 	viper.SetConfigFile(configPath)
 
 	if err := viper.ReadInConfig(); err != nil {
+		viper.AutomaticEnv()
 		log.Println("Config", viper.ConfigFileUsed())
 		dir := filepath.Dir(viper.ConfigFileUsed())
 		if _, err := os.Stat(dir); os.IsNotExist(err) {

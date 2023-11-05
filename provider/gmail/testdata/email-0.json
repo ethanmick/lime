@@ -1,0 +1,61 @@
+{
+  "historyId": "6672846",
+  "id": "18b96b5cc5838565",
+  "internalDate": "1699040550000",
+  "labelIds": [
+    "IMPORTANT",
+    "CATEGORY_PERSONAL",
+    "INBOX"
+  ],
+  "payload": {
+    "body": {},
+    "headers": [
+      {
+        "name": "Delivered-To",
+        "value": "test@example.com"
+      },
+      {
+        "name": "Content-Type",
+        "value": "multipart/alternative; boundary=0828ba841c714935b8b681f94906e0ae"
+      }
+    ],
+    "mimeType": "multipart/alternative",
+    "parts": [
+      {
+        "body": {
+          "data": "SGVsbG8sIHRoaXMgaXMgYSB0ZXN0IQ",
+          "size": 1517
+        },
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/plain"
+          }
+        ],
+        "mimeType": "text/plain",
+        "partId": "0"
+      },
+      {
+        "body": {
+          "data": "PGh0bWw-DQogIEhlbGxvLCB0aGlzIGlzIGEgdGVzdCENCjwvaHRtbD4",
+          "size": 1904
+        },
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/html"
+          },
+          {
+            "name": "Content-Transfer-Encoding",
+            "value": "quoted-printable"
+          }
+        ],
+        "mimeType": "text/html",
+        "partId": "1"
+      }
+    ]
+  },
+  "sizeEstimate": 10279,
+  "snippet": "Hi On Thu, Oct 5, 2023, at 21:09, You wrote: Thanks! That&#39;s definitely one of those things I wished my blog did automatically. I switched to WebP in the newest newsletter (coming out",
+  "threadId": "18ad7d354db25363"
+}

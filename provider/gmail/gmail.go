@@ -8,8 +8,10 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/ethanmick/lime/email"
 	providers "github.com/ethanmick/lime/provider"
 	"golang.org/x/oauth2"
@@ -20,6 +22,34 @@ import (
 
 type GmailProvider struct {
 	srv *gmail.Service
+}
+
+func getBody(mes *gmail.Message) string {
+	var text string
+	var html string
+	if mes.Payload.Body.Data != "" {
+		text = mes.Payload.Body.Data
+	}
+	for _, p := range mes.Payload.Parts {
+		if strings.Contains(p.MimeType, "text/plain") {
+			text = p.Body.Data
+		} else if strings.Contains(p.MimeType, "text/html") {
+			html = p.Body.Data
+		}
+		for _, p := range p.Parts {
+			if strings.Contains(p.MimeType, "text/plain") {
+				text = p.Body.Data
+			} else if strings.Contains(p.MimeType, "text/html") {
+				html = p.Body.Data
+			}
+		}
+	}
+	if text != "" {
+		return text
+	} else {
+		doc, _ := goquery.NewDocumentFromReader(strings.NewReader(html))
+		return doc.Text()
+	}
 }
 
 func FromGmail(mes *gmail.Message) email.Email {
@@ -37,13 +67,12 @@ func FromGmail(mes *gmail.Message) email.Email {
 	e.From = e.Headers["From"]
 	e.CC = []string{e.Headers["Cc"]}
 	e.BCC = []string{e.Headers["Bcc"]}
-	var body string
-	for _, p := range mes.Payload.Parts {
-		if p.MimeType == "text/html" {
-			body = p.Body.Data
-		}
+	e.Body = email.Body(getBody(mes))
+	if e.Body == "" {
+		b, _ := json.Marshal(mes)
+		os.WriteFile("email.json", b, 0644)
+		panic("Failed to parse body from email, dumping and panicing")
 	}
-	e.Body = body
 	e.Filename = mes.Payload.Filename
 	e.Snippet = mes.Snippet
 	return e

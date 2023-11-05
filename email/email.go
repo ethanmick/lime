@@ -1,11 +1,14 @@
 package email
 
 import (
+	"encoding/base64"
 	"net/mail"
 	"time"
 )
 
 type Headers map[string]string
+
+type Body string
 
 type Email struct {
 	// Id: The immutable ID of the message.
@@ -33,7 +36,7 @@ type Email struct {
 	BCC []string `json:"bcc,omitempty"`
 
 	// Body: The entire email message in an RFC 2822 formatted and base64url
-	Body string `json:"body,omitempty"`
+	Body Body `json:"body,omitempty"`
 
 	// Filename: The filename of the attachment. Only present if this
 	// message part represents an attachment.
@@ -41,6 +44,9 @@ type Email struct {
 
 	// Snippet: A short part of the message text.
 	Snippet string `json:"snippet,omitempty"`
+
+	// Labels are used for classifying this email
+	Labels []Label `json:"labels,omitempty"`
 }
 
 func (e *Email) FromEmail() string {
@@ -49,4 +55,12 @@ func (e *Email) FromEmail() string {
 		return ""
 	}
 	return addr.Address
+}
+
+func (b Body) Decode() (string, error) {
+	decoded, err := base64.URLEncoding.DecodeString(string(b))
+	if err != nil {
+		return "", err
+	}
+	return string(decoded[:]), nil
 }

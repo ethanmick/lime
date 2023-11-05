@@ -46,7 +46,7 @@ func parse(byt []byte) error {
 	fmt.Printf("==> Is List: %v\n", email.IsList(&e))
 	if e.FromEmail() == "hello@phind.com" {
 		spew.Dump(e)
-		decoded, _ := base64.URLEncoding.DecodeString(e.Body)
+		decoded, _ := base64.URLEncoding.DecodeString(string(e.Body))
 		spew.Dump(string(decoded[:]))
 	}
 	fmt.Println("")
